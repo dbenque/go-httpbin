@@ -18,6 +18,7 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -74,6 +75,8 @@ func GetMux() *mux.Router {
 	r.HandleFunc(`/image/gif`, GIFHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc(`/image/png`, PNGHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc(`/image/jpeg`, JPEGHandler).Methods(http.MethodGet, http.MethodHead)
+	r.HandleFunc(`/env`, EnvHandler).Methods(http.MethodGet, http.MethodHead)
+	r.HandleFunc(`/file`, FileHandler).Methods(http.MethodGet, http.MethodHead)
 	return r
 }
 
@@ -658,4 +661,31 @@ func parseData(r *http.Request) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+// EnvHandler print the environment where the server is running
+func EnvHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	if len(r.URL.Query()) == 0 {
+		for _, v := range os.Environ() {
+			fmt.Fprint(w, v+"\n")
+		}
+	} else {
+		for k := range r.URL.Query() {
+			fmt.Fprint(w, k+"="+os.Getenv(k)+"\n")
+		}
+	}
+}
+
+// FileHandler print the content of the file passed as query parameter
+func FileHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	for k := range r.URL.Query() {
+		b, err := ioutil.ReadFile(k)
+		if err != nil {
+			fmt.Fprint(w, "FILE "+k+" ERROR:"+err.Error()+"\n")
+		} else {
+			fmt.Fprint(w, "FILE "+k+":"+string(b)+"\n")
+		}
+	}
 }
