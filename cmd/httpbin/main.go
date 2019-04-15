@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ahmetb/go-httpbin"
+	"github.com/dbenque/go-httpbin"
 )
 
 var (

@@ -45,6 +45,7 @@ func GetMux() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc(`/`, HomeHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc(`/ip`, IPHandler).Methods(http.MethodGet, http.MethodHead)
+	r.HandleFunc(`/host`, HostHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc(`/user-agent`, UserAgentHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc(`/headers`, HeadersHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc(`/get`, GetHandler).Methods(http.MethodGet, http.MethodHead)
@@ -675,6 +676,13 @@ func EnvHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, k+"="+os.Getenv(k)+"\n")
 		}
 	}
+}
+
+// HostHandler print the environment where the server is running
+func HostHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprint(w, os.Getenv("HOSTNAME"))
+
 }
 
 // FileHandler print the content of the file passed as query parameter
